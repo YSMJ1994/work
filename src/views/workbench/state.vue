@@ -1,21 +1,10 @@
 <template>
-    <section class="state-container">
+    <section class="list-container">
         <div class="header">
             <el-button type="text" size="small" icon="el-icon-refresh" @click="refresh">刷新</el-button>
         </div>
         <div class="main" v-loading="loading" @mousewheel="mousewheel" ref="main">
-            <div class="main-row" v-for="(item, idx) in list" :key="item.id || idx">
-                <div class="photo-box">
-                    <img class="photo" :src="item.photo" :alt="item.name" />
-                </div>
-                <div class="msg-box">
-                    <div class="msg-text">{{item.name}}</div>
-                    <div class="msg-time">{{formatTime(item.time)}}</div>
-                </div>
-                <div class="time-box">
-                    <div class="create-time">{{parseTime(item.time)}}</div>
-                </div>
-            </div>
+            <StateCell :data="item" v-for="(item, idx) in list" :key="item.id || idx"/>
             <div class="loading-msg">
                 <span v-if="loadMoreLoading">
                     <span>
@@ -33,10 +22,13 @@
 </template>
 
 <script>
-import { parseTime } from "@/utils"
 import { getStateList } from '@/api/state';
+import StateCell from './stateCell';
 
 export default {
+    props: {
+        postMethod: Function
+    },
     data() {
         return {
             list: [],
@@ -48,40 +40,13 @@ export default {
             hasMore: false
         }
     },
+    components: {
+        StateCell
+    },
     mounted() {
         this.refresh()
     },
     methods: {
-        parseTime(time) {
-            return parseTime(time)
-        },
-        formatTime(time) {
-            let cTime = new Date().getTime()
-            time = parseInt(time)
-            let gap = Math.abs(cTime - time)
-            let suffix = cTime - time > 0 ? '前' : '后',
-                prefix = ''
-            if(gap < 60000) {
-                prefix = parseInt(gap / 1000) + '秒'
-                return prefix + suffix
-            }
-            if(gap >= 60000 && gap < 3600000) {
-                prefix = parseInt(gap / 60000) + '分钟'
-                return prefix + suffix
-            }
-            if(gap >= 3600000 && gap < 86400000) {
-                prefix = parseInt(gap / 3600000) + '小时'
-                return prefix + suffix
-            }
-            if(gap >= 86400000 && gap < 31536000000) {
-                prefix = parseInt(gap / 86400000) + '天'
-                return prefix + suffix
-            }
-            if(gap >= 31536000000) {
-                prefix = parseInt(gap / 31536000000) + '年'
-                return prefix + suffix
-            }
-        },
         loadData() {
             let para = {
                 page: this.page,
@@ -128,10 +93,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.state-container {
-    $itemHeight: 4rem;
-    $photoHeight: $itemHeight / 1.8;
-
+.list-container {
     width: 600px;
     height: 400px;
     margin-left: 10%;
@@ -148,51 +110,6 @@ export default {
         height: calc(100% - 2rem);
         padding: 0 10px;
         overflow: auto;
-    }
-    .main-row {
-        font-size: 0;
-        display: flex;
-        align-items: center;
-        height: $itemHeight;
-        border-bottom: 1px solid #f2f2f2;
-    }
-    .photo-box {
-        width: $itemHeight;
-        height: $photoHeight;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .photo {
-        width: $photoHeight;
-        height: $photoHeight;
-    }
-    .msg-box {
-        flex: auto;
-        height: $itemHeight / 2;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    .msg-text {
-        color: #1a1a1a;
-        font-size: 0.825rem;
-    }
-    .msg-time {
-        color: #ccc;
-        font-size: 0.75rem;
-    }
-    .time-box {
-        height: $itemHeight;
-        display: flex;
-        align-items: flex-end;
-        justify-content: center;
-        padding: 0 0.5rem;
-    }
-    .create-time {
-        color: #ccc;
-        margin-bottom: 5px;
-        font-size: 0.75rem;
     }
     .loading-msg {
         font-size: 0.75rem;
