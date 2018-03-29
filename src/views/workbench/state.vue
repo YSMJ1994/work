@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import { parseTime } from "../utils"
-import { getStateList } from '../api/state';
+import { parseTime } from "@/utils"
+import { getStateList } from '@/api/state';
 
 export default {
     data() {
